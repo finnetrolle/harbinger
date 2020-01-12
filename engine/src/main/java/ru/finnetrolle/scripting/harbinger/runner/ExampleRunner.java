@@ -10,8 +10,8 @@ import ru.finnetrolle.scripting.harbinger.util.Pair;
 
 public class ExampleRunner {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ExampleRunner.class);
-  static final String[] PATH_TO_DIR_WITH_SOURCES = {"snippets\\src\\main\\groovy\\ru\\finnetrolle\\scripting\\harbinger\\snippets\\"};
+  static final String[] PATH_TO_DIR_WITH_SOURCES = {
+      "processors\\src\\main\\groovy\\ru\\finnetrolle\\scripting\\harbinger\\processors\\"};
   static final Map<String, String> SOURCE = Stream.of(
       Pair.from("1", "1000"),
       Pair.from("2", "season"),
@@ -19,6 +19,7 @@ public class ExampleRunner {
       Pair.from("4", "123"),
       Pair.from("5", "322.48")
   ).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+  private static final Logger LOG = LoggerFactory.getLogger(ExampleRunner.class);
 
   static void logMap(Map<String, String> map) {
     map.forEach((k, v) -> LOG.info("{}={}", k, v));
