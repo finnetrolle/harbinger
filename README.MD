@@ -32,6 +32,7 @@ Test your snippets after changing
 * Think about one more dimension for scripting to have several methods in one processor
 
 ## Links
+* [Serverless for the poor](http://finnetrolle.ru/developing/java/groovy/script/2020/01/12/serverless-for-the-poor.html)
 * [Byte Buddy](https://bytebuddy.net)
 * [Integrating groovy into applications](https://www.groovy-lang.org/integrating.html)
 * [Attempt to implement loadable groovy scripts over REST](https://github.com/finnetrolle/aeon)
