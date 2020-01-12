@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.finnetrolle.scripting.harbinger.util.GroovyProcessorLoader;
@@ -17,7 +17,10 @@ import ru.finnetrolle.scripting.harbinger.util.PropertiesUtil;
 public class Harbinger {
 
   private final static Logger LOG = LoggerFactory.getLogger(Harbinger.class);
-  private final Lock lock = new ReentrantLock();
+  private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+  private final Lock readLock = readWriteLock.readLock();
+  private final Lock writeLock = readWriteLock.writeLock();
+
   private final GroovyProcessorLoader groovyProcessorLoader;
   private Map<String, TagProcessor> processors = null;
 
@@ -38,18 +41,22 @@ public class Harbinger {
         .setDestination(new HashMap<>())
         .build();
 
-    lock.lock();
-    if (processors == null) {
-      lock.unlock();
-      throw new RuntimeException("Processors are not preloaded");
-    }
-    source.keySet().forEach(tag -> {
-      TagProcessor processor = processors.get(tag);
-      if (processor != null) {
-        processor.process(context);
+    try {
+      readLock.lock();
+      if (processors == null) {
+        throw new RuntimeException("Processors are not preloaded");
       }
-    });
-    lock.unlock();
+
+      source.keySet().forEach(tag -> {
+        TagProcessor processor = processors.get(tag);
+        if (processor != null) {
+          processor.process(context);
+        }
+      });
+
+    } finally {
+      readLock.unlock();
+    }
 
     return context.getDestination();
   }
@@ -63,13 +70,16 @@ public class Harbinger {
 
     PropertiesUtil.loadPropertiesFile(filename)
         .orElseThrow(() -> new RuntimeException("Cannot load properties file"))
-        .forEach((tag, propName) -> {
-          defineProcessor(tag, propName).ifPresent(processor -> map.put(tag, processor));
-        });
+        .forEach((tag, propName) -> defineProcessor(tag, propName)
+            .ifPresent(processor -> map
+                .put(tag, processor)));
 
-    lock.lock();
-    this.processors = map;
-    lock.unlock();
+    try {
+      writeLock.lock();
+      this.processors = map;
+    } finally {
+      writeLock.unlock();
+    }
   }
 
   private Optional<TagProcessor> defineProcessor(String tag, String processorName) {
