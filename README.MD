@@ -30,3 +30,9 @@ Test your snippets after changing
 ## ToDo List
 * Cover with tests
 * Think about one more dimension for scripting to have several methods in one processor
+
+## Links
+* [Byte Buddy](https://bytebuddy.net)
+* [Integrating groovy into applications](https://www.groovy-lang.org/integrating.html)
+* [Attempt to implement loadable groovy scripts over REST](https://github.com/finnetrolle/aeon)
+* [Spock framework](http://spockframework.org/)
